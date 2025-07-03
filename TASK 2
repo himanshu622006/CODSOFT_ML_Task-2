@@ -1,0 +1,59 @@
+# task2_credit_card_fraud.py
+# Credit Card Fraud Detection using Logistic Regression & Random Forest
+
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+
+# Step 1: Load dataset
+# Dataset: https://www.kaggle.com/datasets/kartik2112/fraud-detection
+# (Download and place as 'creditcard.csv' in the same folder)
+df = pd.read_csv('creditcard.csv')
+
+print("Data loaded successfully.")
+print(f"Shape: {df.shape}")
+print(df.head())
+
+# Step 2: Data preprocessing
+# Feature scaling for 'Amount'
+scaler = StandardScaler()
+df['scaled_amount'] = scaler.fit_transform(df[['Amount']])
+df.drop(['Amount', 'Time'], axis=1, inplace=True)
+
+# Step 3: Split data
+X = df.drop('Class', axis=1)
+y = df['Class']
+
+# Train-test split with stratify to keep class distribution
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y)
+
+print(f"Train set: {X_train.shape}, Test set: {X_test.shape}")
+
+# Step 4: Model training and evaluation
+
+# Logistic Regression
+lr = LogisticRegression(max_iter=1000)
+lr.fit(X_train, y_train)
+y_pred_lr = lr.predict(X_test)
+
+print("\n=== Logistic Regression Results ===")
+print(confusion_matrix(y_test, y_pred_lr))
+print(classification_report(y_test, y_pred_lr))
+print(f"Accuracy: {accuracy_score(y_test, y_pred_lr):.4f}")
+
+# Random Forest
+rf = RandomForestClassifier(n_estimators=100, random_state=42)
+rf.fit(X_train, y_train)
+y_pred_rf = rf.predict(X_test)
+
+print("\n=== Random Forest Results ===")
+print(confusion_matrix(y_test, y_pred_rf))
+print(classification_report(y_test, y_pred_rf))
+print(f"Accuracy: {accuracy_score(y_test, y_pred_rf):.4f}")
+
+print("\nDone! Check the results above.")
